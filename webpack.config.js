@@ -12,7 +12,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = { // ES6의 모듈 시스템이 아닌 node에서 사용하는 모듈 시스템임을 유의하자!
   mode: 'development', // webpack 실행 모드
   entry: { // 의존 관계에 있는 모듈들의 시작점
-    main: './src/app.js'
+    // main: './src/app.js' // webpack-기본편 실습시 해당 코드로 설정
+    main: './app.js' // babel 실습시 해당 코드로 설정
   },
   output: { // 번들링된 결과물을 저장하는 위치
     path: path.resolve('./dist'), // 절대 경로를 계산해주는 resolve 함수
@@ -60,6 +61,11 @@ module.exports = { // ES6의 모듈 시스템이 아닌 node에서 사용하는 
           // 20[KB] 이상인 bg.png는 file-loader로 처리되어 bg.png 파일이 dist 폴더 안에 들어오게 된다.
         }
       },
+      { // 다음과 같이 babel-loader로 webpack과 함께 사용하면 훨씬 단순하고 자동화된 프론트엔드 개발환경을 갖출 수 있다.
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/
+      }
     ]
   },
   plugins: [ // output으로 만들어진 번들링 결과물의 후처리를 담당
