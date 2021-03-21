@@ -17,6 +17,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     .join("");
 });
 
+// dynamic import 코드 예시(webpackChunkName으로 지정한 이름으로 청크 파일이 분리된다.)
+// function getController() {
+//   return import(/* webpackChunkName: "controller" */ "./controller").then(m => {
+//     return m.default
+//   })
+// }
+
+// document.addEventListener("DOMContentLoaded", () => {
+//   getController().then(controller => {
+//     controller.init(document.querySelector("#app"))
+//   })
+// })
+
 // devServer.hot 옵션을 켜면 웹팩 개발 서버 위에서 module.hot 객체가 생성된다.
 // accept() 메소드는 감시할 모듈과 콜백 함수를 인자로 받는다.
 if (module.hot) {
@@ -26,6 +39,8 @@ if (module.hot) {
     console.log("result 모듈 변경됨");
   });
 }
+
+console.log("app.js");
 
 // console.log(process.env.NODE_ENV);
 // console.log(TWO);

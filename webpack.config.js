@@ -10,13 +10,22 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 // connect-api-mocker : 특정 목업 폴더를 만들어 api 응답을 담은 파일을 저장한 뒤, 이 폴더를 api로 제공해 주는 기능을 한다.
 const apiMocker = require("connect-api-mocker");
+// css 파일 빈칸을 없애는 압축
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+// 자바스크립트 코드 난독화, debugger  구문 제거
+const TerserPlugin = require("terser-webpack-plugin");
+// externals에 추가한 전역변수 값을 webpack 아웃풋 폴더에 옮기고 index.html에서 로딩해야할 때 파일을 복사하는 플러그인
+const CopyPlugin = require("copy-webpack-plugin");
+
+const mode = process.env.NODE_ENV || "development";
 
 module.exports = {
   // ES6의 모듈 시스템이 아닌 node에서 사용하는 모듈 시스템임을 유의하자!
-  mode: "development", // webpack 실행 모드
+  mode, // webpack 실행 모드
   entry: {
     // 의존 관계에 있는 모듈들의 시작점
     main: "./src/app.js", // webpack-기본편 실습시 해당 코드로 설정
+    result: "./src/result.js",
     // main: './app.js' // babel 실습시 해당 코드로 설정
   },
   output: {
@@ -52,6 +61,28 @@ module.exports = {
       app.use(apiMocker("/api", "mocks/api"));
     },
     hot: true, // 핫 모듈 리플레이스먼트(HMR) 활성화 (전체 화면 갱신 하지 않고 변경한 모듈만 바꿔치기)
+  },
+  optimization: {
+    minimizer:
+      mode === "production"
+        ? [
+            new OptimizeCSSAssetsPlugin(), // css 파일 압축
+            new TerserPlugin({
+              terserOptions: {
+                compress: {
+                  drop_console: true, // 콘솔 로그를 제거한다
+                },
+              },
+            }),
+          ]
+        : [],
+    splitChunks: {
+      chunks: "all", // 중복된 코드를 제거
+    },
+  },
+  // third party 라이브러리는 이미 빌드되서 온 결과이므로 제외시켜도 된다.
+  externals: {
+    axios: "axios", // webpack으로 빌드할 때 axios를 사용한 코드가 있으면 axios 전역변수를 사용하라는 의미
   },
   module: {
     rules: [
@@ -140,5 +171,14 @@ module.exports = {
     ...(process.env.NODE_ENV === "production"
       ? [new MiniCssExtractPlugin({ filename: "[name].css" })]
       : []),
+    // cf) 아래 설정을 적용하기 위해서는 copy-webpack-plugin은 반드시 6.3.2 버전으로 설치해야 한다.
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "./node_modules/axios/dist/axios.min.js",
+          to: "./axios.min.js",
+        },
+      ],
+    }),
   ],
 };
