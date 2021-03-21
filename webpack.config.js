@@ -51,6 +51,7 @@ module.exports = {
       // });
       app.use(apiMocker("/api", "mocks/api"));
     },
+    hot: true, // 핫 모듈 리플레이스먼트(HMR) 활성화 (전체 화면 갱신 하지 않고 변경한 모듈만 바꿔치기)
   },
   module: {
     rules: [
